@@ -1,16 +1,30 @@
 package com.myspring.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.ViewResolver;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
 import org.springframework.web.servlet.view.tiles3.TilesConfigurer;
 import org.springframework.web.servlet.view.tiles3.TilesView;
 
-@Configuration
-public class WebMvcConfig {
+import com.myspring.interceptor.LoginInterceptor;
 
+@Configuration
+public class WebMvcConfig extends WebMvcConfigurationSupport{
+
+	@Override
+	 public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
+	 }
+	
 	@Bean
 	public ViewResolver getViewResolver() {
 		InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
@@ -34,5 +48,20 @@ public class WebMvcConfig {
         resolver.setViewClass(TilesView.class);
         resolver.setOrder(0);
         return resolver;
+    }
+    
+    @Autowired
+    LoginInterceptor loginInterceptor;
+    
+    @Override
+    protected void addInterceptors(InterceptorRegistry registry) {
+    	
+    	ArrayList<String> pathPatterns = new ArrayList<>();
+    	
+    	pathPatterns.add("/board/write.do");
+    	
+    	registry.addInterceptor(loginInterceptor).addPathPatterns(pathPatterns);
+    	
+    	
     }
 }
